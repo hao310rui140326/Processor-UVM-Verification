@@ -1,4 +1,4 @@
-include $(UVM_HOME)/Makefile.vcs
+##include ./Makefile.vcs
 UVM_VERBOSITY = UVM_HIGH
 DUT_DIR = ./Processor
 TEST_DIR = .
@@ -16,7 +16,6 @@ DUT_SOURCES = \
 	+incdir+$(DUT_DIR) $(DUT_DIR)/full_adder.v \
 	+incdir+$(DUT_DIR) $(DUT_DIR)/grey_box.v \
 	+incdir+$(DUT_DIR) $(DUT_DIR)/halfadder.v \
-	+incdir+$(DUT_DIR) $(DUT_DIR)/Hazard_ControlUnit.v \
 	+incdir+$(DUT_DIR) $(DUT_DIR)/inst_mem.v \
 	+incdir+$(DUT_DIR) $(DUT_DIR)/mux2_1_1bit.v \
 	+incdir+$(DUT_DIR) $(DUT_DIR)/mux4_1_16bit.v \
@@ -31,11 +30,18 @@ TEST_SOURCES = \
 all: comp runnurg
 
 comp:
-	$(VCS) -cm line+cond+fsm -Mupdate +v2k -sverilog -timescale=1ps/1ps $(DUT_SOURCES) $(TEST_SOURCES) -l compile.log +vcs+dupvars+verilog.vpd -debug_all 
+	##$(VCS) -cm line+cond+fsm -Mupdate +v2k -sverilog -timescale=1ps/1ps $(DUT_SOURCES) $(TEST_SOURCES) -l compile.log +vcs+dupvars+verilog.vpd -debug_all 
+	vcs -full64  -cpp g++-4.8 -cc gcc-4.8  -cm line+cond+fsm -Mupdate +v2k -sverilog    +lint=TFIPC-L  -ntb_opts uvm   -timescale=1ps/1ps $(DUT_SOURCES) $(TEST_SOURCES) -l compile.log +vcs+dupvars+verilog.vpd -debug_all 
 run:
-	$(SIMV) -cm line+cond+fsm +ntb_random_seed=$(SEED) +UVM_TESTNAME=$(TEST_NAME) 
+	./simv   -cm line+cond+fsm +ntb_random_seed=$(SEED) +UVM_TESTNAME=$(TEST_NAME) 
 runnurg: run
-	urg -dir simv.vdb
+	urg  -full64 -dir simv.vdb
 runncheck: run	
 	$(CHECK)
+
+
+
+dve:
+	dve -full64 -vpd vcdplus.vpd &
+
 
